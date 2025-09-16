@@ -93,7 +93,7 @@ export const WorkforceView: React.FC<WorkforceViewProps> = ({ onGenerate }) => {
       avatar: 'https://images.pexels.com/photos/1181519/pexels-photo-1181519.jpeg?auto=compress&cs=tinysrgb&w=64&h=64&dpr=2'
     },
     // Add more sample data
-    ...Array.from({ length: 45 }, (_, i) => ({
+    ...Array.from({ length: 5 }, (_, i) => ({
       id: i + 6,
       name: `Employee ${i + 6}`,
       username: `emp${i + 6}`,
