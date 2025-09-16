@@ -7,9 +7,10 @@ import { GeneratedDocsView } from './components/GeneratedDocsView';
 import { GenerateModal } from './components/GenerateModal';
 import { ProgressModal } from './components/ProgressModal';
 import { ConfigurationsDrawer } from './components/ConfigurationsDrawer';
+import { CustomFiltersView } from './components/CustomFiltersView';
 
 function App() {
-  const [activeTab, setActiveTab] = useState<'workforce' | 'applications' | 'generated'>('workforce');
+  const [activeTab, setActiveTab] = useState<'workforce' | 'applications' | 'generated' | 'custom-filters'>('workforce');
   const [showGenerateModal, setShowGenerateModal] = useState(false);
   const [showProgressModal, setShowProgressModal] = useState(false);
   const [showConfigDrawer, setShowConfigDrawer] = useState(false);
@@ -22,6 +23,11 @@ function App() {
   const handleProgressComplete = () => {
     setShowProgressModal(false);
     setActiveTab('generated');
+  };
+
+  const handleOpenCustomFilters = () => {
+    setActiveTab('custom-filters');
+    setShowConfigDrawer(false);
   };
 
   const tabs = [
@@ -89,6 +95,7 @@ function App() {
         {activeTab === 'workforce' && <WorkforceView onGenerate={() => setShowGenerateModal(true)} />}
         {activeTab === 'applications' && <JobApplicationsView onGenerate={() => setShowGenerateModal(true)} />}
         {activeTab === 'generated' && <GeneratedDocsView />}
+        {activeTab === 'custom-filters' && <CustomFiltersView onBack={() => setActiveTab('workforce')} />}
       </div>
 
       {/* Modals */}
@@ -110,6 +117,7 @@ function App() {
       <ConfigurationsDrawer
         isOpen={showConfigDrawer}
         onToggle={() => setShowConfigDrawer(!showConfigDrawer)}
+        onOpenCustomFilters={handleOpenCustomFilters}
       />
     </div>
   );

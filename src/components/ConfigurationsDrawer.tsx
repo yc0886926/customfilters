@@ -1,56 +1,13 @@
 import React, { useState } from 'react';
-import { Settings, ChevronUp, ChevronDown, Database, Users, FileText, Shield, Bell, Palette } from 'lucide-react';
+import { Settings, ChevronUp, ChevronDown, Filter } from 'lucide-react';
 
 interface ConfigurationsDrawerProps {
   isOpen: boolean;
   onToggle: () => void;
+  onOpenCustomFilters: () => void;
 }
 
-export const ConfigurationsDrawer: React.FC<ConfigurationsDrawerProps> = ({ isOpen, onToggle }) => {
-  const [activeSection, setActiveSection] = useState<string | null>(null);
-
-  const configSections = [
-    {
-      id: 'system',
-      title: 'System Settings',
-      icon: Database,
-      items: ['Database Configuration', 'API Settings', 'Cache Management', 'Backup Settings']
-    },
-    {
-      id: 'users',
-      title: 'User Management',
-      icon: Users,
-      items: ['User Roles', 'Permissions', 'Authentication', 'Access Control']
-    },
-    {
-      id: 'documents',
-      title: 'Document Templates',
-      icon: FileText,
-      items: ['Template Library', 'Custom Fields', 'Approval Workflows', 'Version Control']
-    },
-    {
-      id: 'security',
-      title: 'Security & Compliance',
-      icon: Shield,
-      items: ['Data Encryption', 'Audit Logs', 'Compliance Rules', 'Privacy Settings']
-    },
-    {
-      id: 'notifications',
-      title: 'Notifications',
-      icon: Bell,
-      items: ['Email Templates', 'Alert Rules', 'Delivery Settings', 'Escalation Policies']
-    },
-    {
-      id: 'appearance',
-      title: 'Appearance',
-      icon: Palette,
-      items: ['Theme Settings', 'Branding', 'Layout Options', 'Color Schemes']
-    }
-  ];
-
-  const toggleSection = (sectionId: string) => {
-    setActiveSection(activeSection === sectionId ? null : sectionId);
-  };
+export const ConfigurationsDrawer: React.FC<ConfigurationsDrawerProps> = ({ isOpen, onToggle, onOpenCustomFilters }) => {
 
   return (
     <div className={`fixed bottom-0 left-0 w-80 bg-white border-r border-gray-200 shadow-lg transition-transform duration-300 z-40 ${
@@ -75,45 +32,14 @@ export const ConfigurationsDrawer: React.FC<ConfigurationsDrawerProps> = ({ isOp
       </div>
 
       {/* Content */}
-      <div className="max-h-96 overflow-y-auto">
-        {configSections.map((section) => {
-          const IconComponent = section.icon;
-          const isActive = activeSection === section.id;
-
-          return (
-            <div key={section.id} className="border-b border-gray-100">
-              <button
-                onClick={() => toggleSection(section.id)}
-                className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors"
-              >
-                <div className="flex items-center space-x-3">
-                  <IconComponent className="w-4 h-4 text-gray-500" />
-                  <span className="text-sm font-medium text-gray-700">{section.title}</span>
-                </div>
-                {isActive ? (
-                  <ChevronUp className="w-4 h-4 text-gray-400" />
-                ) : (
-                  <ChevronDown className="w-4 h-4 text-gray-400" />
-                )}
-              </button>
-
-              {isActive && (
-                <div className="px-4 pb-4">
-                  <div className="space-y-2">
-                    {section.items.map((item, index) => (
-                      <button
-                        key={index}
-                        className="w-full text-left px-3 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded transition-colors"
-                      >
-                        {item}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          );
-        })}
+      <div className="p-4">
+        <button
+          onClick={onOpenCustomFilters}
+          className="w-full flex items-center space-x-3 p-4 hover:bg-gray-50 rounded-lg transition-colors"
+        >
+          <Filter className="w-4 h-4 text-gray-500" />
+          <span className="text-sm font-medium text-gray-700">Custom Filters</span>
+        </button>
       </div>
 
       {/* Footer */}
