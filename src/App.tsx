@@ -2,7 +2,7 @@ import React from 'react';
 import { useState } from 'react';
 import { Users, Briefcase, FileText, Settings, Plus } from 'lucide-react';
 import { WorkforceView } from './components/WorkforceView';
-import { JobApplicationsView } from './components/JobApplicationsView';
+import JobApplicationsView from './components/JobApplicationsView';
 import { GeneratedDocsView } from './components/GeneratedDocsView';
 import { GenerateModal } from './components/GenerateModal';
 import { ProgressModal } from './components/ProgressModal';
