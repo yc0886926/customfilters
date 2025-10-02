@@ -166,24 +166,20 @@ export const CreateCustomFilterPanel: React.FC<CreateCustomFilterPanelProps> = (
                     <div className="fixed inset-0 z-10" onClick={() => setShowDocuments(false)} />
                     <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-20 max-h-64 overflow-y-auto">
                       <div className="p-2">
-                        <div className="text-xs font-medium text-gray-500 px-3 py-2 border-b border-gray-100">
-                          Select Documents
-                        </div>
                         <div className="py-1">
                           {availableDocuments.map((document) => (
                             <button
                               key={document}
                               onClick={() => toggleDocument(document)}
-                              className="w-full flex items-center justify-between px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded transition-colors"
+                              className="w-full flex items-center space-x-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded transition-colors"
                             >
+                              <input
+                                type="checkbox"
+                                checked={selectedDocuments.includes(document)}
+                                onChange={() => {}}
+                                className="rounded border-gray-300"
+                              />
                               <span>{document}</span>
-                              {selectedDocuments.includes(document) && (
-                                <div className="w-4 h-4 bg-blue-600 rounded flex items-center justify-center">
-                                  <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                  </svg>
-                                </div>
-                              )}
                             </button>
                           ))}
                         </div>
@@ -213,24 +209,20 @@ export const CreateCustomFilterPanel: React.FC<CreateCustomFilterPanelProps> = (
                     <div className="fixed inset-0 z-10" onClick={() => setShowWorkflows(false)} />
                     <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-20 max-h-64 overflow-y-auto">
                       <div className="p-2">
-                        <div className="text-xs font-medium text-gray-500 px-3 py-2 border-b border-gray-100">
-                          Select Workflows
-                        </div>
                         <div className="py-1">
                           {availableWorkflows.map((workflow) => (
                             <button
                               key={workflow}
                               onClick={() => toggleWorkflow(workflow)}
-                              className="w-full flex items-center justify-between px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded transition-colors"
+                              className="w-full flex items-center space-x-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded transition-colors"
                             >
+                              <input
+                                type="checkbox"
+                                checked={selectedWorkflows.includes(workflow)}
+                                onChange={() => {}}
+                                className="rounded border-gray-300"
+                              />
                               <span>{workflow}</span>
-                              {selectedWorkflows.includes(workflow) && (
-                                <div className="w-4 h-4 bg-blue-600 rounded flex items-center justify-center">
-                                  <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                  </svg>
-                                </div>
-                              )}
                             </button>
                           ))}
                         </div>

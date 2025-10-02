@@ -43,20 +43,20 @@ export const TargetGroupsDropdown: React.FC<TargetGroupsDropdownProps> = ({
       {/* Dropdown */}
       <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-20 max-h-64 overflow-y-auto">
         <div className="p-2">
-          <div className="text-xs font-medium text-gray-500 px-3 py-2 border-b border-gray-100">
-            Select Target Groups
-          </div>
           <div className="py-1">
             {availableGroups.map((group) => (
               <button
                 key={group}
                 onClick={() => toggleGroup(group)}
-                className="w-full flex items-center justify-between px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded transition-colors"
+                className="w-full flex items-center space-x-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded transition-colors"
               >
+                <input
+                  type="checkbox"
+                  checked={selectedGroups.includes(group)}
+                  onChange={() => {}}
+                  className="rounded border-gray-300"
+                />
                 <span>{group}</span>
-                {selectedGroups.includes(group) && (
-                  <Check className="w-4 h-4 text-blue-600" />
-                )}
               </button>
             ))}
           </div>
