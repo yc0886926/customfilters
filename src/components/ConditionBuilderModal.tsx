@@ -13,20 +13,34 @@ interface ConditionBuilderModalProps {
   conditions: Condition[];
   onConditionsChange: (conditions: Condition[]) => void;
   onClose: () => void;
+  filterType?: 'people' | 'applicants' | 'templates';
 }
 
 export const ConditionBuilderModal: React.FC<ConditionBuilderModalProps> = ({
   conditions,
   onConditionsChange,
-  onClose
+  onClose,
+  filterType = 'people'
 }) => {
   const [localConditions, setLocalConditions] = useState<Condition[]>(
     conditions.length > 0 ? conditions : [{ id: '1', field: '', operator: '', value: '', logic: 'AND' }]
   );
 
-  const fields = [
-    'Name', 'Email', 'Department', 'Title', 'Status', 'Hiring Date', 'Location', 'Manager', 'Employee Type'
-  ];
+  const getFieldsForType = (type: string) => {
+    switch (type) {
+      case 'people':
+        return [
+          'Name', 'Email', 'Department', 'Job Role / Title', 'Employment Type', 
+          'Location / Office', 'Manager / Reporting Line', 'Start Date', 'End Date'
+        ];
+      case 'applicants':
+        return ['Name', 'Email', 'Status', 'Country'];
+      default:
+        return ['Name', 'Email', 'Department', 'Title', 'Status', 'Hiring Date', 'Location', 'Manager', 'Employee Type'];
+    }
+  };
+
+  const fields = getFieldsForType(filterType);
 
   const operators = [
     'equals', 'not equals', 'contains', 'does not contain', 'starts with', 'ends with', 

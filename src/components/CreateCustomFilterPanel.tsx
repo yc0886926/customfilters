@@ -15,12 +15,42 @@ export const CreateCustomFilterPanel: React.FC<CreateCustomFilterPanelProps> = (
   onSave
 }) => {
   const [name, setName] = useState('');
+  const [filterType, setFilterType] = useState<'people' | 'applicants'>('people');
+  const [selectedDocuments, setSelectedDocuments] = useState<string[]>([]);
+  const [selectedWorkflows, setSelectedWorkflows] = useState<string[]>([]);
   const [conditions, setConditions] = useState<any[]>([]);
   const [targetGroups, setTargetGroups] = useState<string[]>([]);
   const [enabled, setEnabled] = useState(true);
   const [showConditionBuilder, setShowConditionBuilder] = useState(false);
   const [showTargetGroups, setShowTargetGroups] = useState(false);
+  const [showDocuments, setShowDocuments] = useState(false);
+  const [showWorkflows, setShowWorkflows] = useState(false);
 
+  const availableDocuments = [
+    'Annual Performance Review',
+    'Certificate of Employment',
+    'Exit Documents',
+    'Form',
+    'Leave Form',
+    'Offer Letter Template',
+    'Reference Check Form',
+    'Employee Handbook',
+    'Non-Disclosure Agreement',
+    'Work Authorization'
+  ];
+
+  const availableWorkflows = [
+    'Onboarding Workflow',
+    'Performance Review Process',
+    'Exit Interview Process',
+    'Training Enrollment',
+    'Benefits Setup',
+    'Equipment Assignment',
+    'Security Access Setup',
+    'Compliance Training',
+    'Background Check Process',
+    'Reference Verification'
+  ];
   const getTabLabel = () => {
     switch (activeTab) {
       case 'people': return 'People';
@@ -30,6 +60,21 @@ export const CreateCustomFilterPanel: React.FC<CreateCustomFilterPanelProps> = (
     }
   };
 
+  const toggleDocument = (document: string) => {
+    if (selectedDocuments.includes(document)) {
+      setSelectedDocuments(selectedDocuments.filter(d => d !== document));
+    } else {
+      setSelectedDocuments([...selectedDocuments, document]);
+    }
+  };
+
+  const toggleWorkflow = (workflow: string) => {
+    if (selectedWorkflows.includes(workflow)) {
+      setSelectedWorkflows(selectedWorkflows.filter(w => w !== workflow));
+    } else {
+      setSelectedWorkflows([...selectedWorkflows, workflow]);
+    }
+  };
   const handleSave = () => {
     // Validation and save logic here
     onSave();
@@ -52,7 +97,7 @@ export const CreateCustomFilterPanel: React.FC<CreateCustomFilterPanelProps> = (
         </div>
 
         {/* Content */}
-        <div className="p-6 space-y-6">
+        <div className="p-6 space-y-6 overflow-y-auto h-full pb-32">
           {/* Name Field */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -67,6 +112,135 @@ export const CreateCustomFilterPanel: React.FC<CreateCustomFilterPanelProps> = (
             />
           </div>
 
+          {/* Filter Type Field - Only for Templates */}
+          {activeTab === 'templates' && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Filter Type
+              </label>
+              <div className="flex space-x-1 bg-gray-100 rounded-lg p-1">
+                <button
+                  onClick={() => setFilterType('people')}
+                  className={`flex-1 px-3 py-2 text-sm rounded-md transition-colors ${
+                    filterType === 'people'
+                      ? 'bg-white text-gray-900 shadow-sm'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  People
+                </button>
+                <button
+                  onClick={() => setFilterType('applicants')}
+                  className={`flex-1 px-3 py-2 text-sm rounded-md transition-colors ${
+                    filterType === 'applicants'
+                      ? 'bg-white text-gray-900 shadow-sm'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  Applicants
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Configuration Options - Only for Templates */}
+          {activeTab === 'templates' && (
+            <>
+              {/* Select Documents */}
+              <div className="relative">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Select Documents
+                </label>
+                <button
+                  onClick={() => setShowDocuments(!showDocuments)}
+                  className="w-full flex items-center justify-between px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  <span className="text-gray-500">
+                    {selectedDocuments.length === 0 ? 'Select documents' : `${selectedDocuments.length} document(s) selected`}
+                  </span>
+                  <ChevronDown className="w-4 h-4 text-gray-400" />
+                </button>
+
+                {showDocuments && (
+                  <>
+                    <div className="fixed inset-0 z-10" onClick={() => setShowDocuments(false)} />
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-20 max-h-64 overflow-y-auto">
+                      <div className="p-2">
+                        <div className="text-xs font-medium text-gray-500 px-3 py-2 border-b border-gray-100">
+                          Select Documents
+                        </div>
+                        <div className="py-1">
+                          {availableDocuments.map((document) => (
+                            <button
+                              key={document}
+                              onClick={() => toggleDocument(document)}
+                              className="w-full flex items-center justify-between px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded transition-colors"
+                            >
+                              <span>{document}</span>
+                              {selectedDocuments.includes(document) && (
+                                <div className="w-4 h-4 bg-blue-600 rounded flex items-center justify-center">
+                                  <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                  </svg>
+                                </div>
+                              )}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {/* Select Workflows */}
+              <div className="relative">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Select Workflows
+                </label>
+                <button
+                  onClick={() => setShowWorkflows(!showWorkflows)}
+                  className="w-full flex items-center justify-between px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  <span className="text-gray-500">
+                    {selectedWorkflows.length === 0 ? 'Select workflows' : `${selectedWorkflows.length} workflow(s) selected`}
+                  </span>
+                  <ChevronDown className="w-4 h-4 text-gray-400" />
+                </button>
+
+                {showWorkflows && (
+                  <>
+                    <div className="fixed inset-0 z-10" onClick={() => setShowWorkflows(false)} />
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-20 max-h-64 overflow-y-auto">
+                      <div className="p-2">
+                        <div className="text-xs font-medium text-gray-500 px-3 py-2 border-b border-gray-100">
+                          Select Workflows
+                        </div>
+                        <div className="py-1">
+                          {availableWorkflows.map((workflow) => (
+                            <button
+                              key={workflow}
+                              onClick={() => toggleWorkflow(workflow)}
+                              className="w-full flex items-center justify-between px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded transition-colors"
+                            >
+                              <span>{workflow}</span>
+                              {selectedWorkflows.includes(workflow) && (
+                                <div className="w-4 h-4 bg-blue-600 rounded flex items-center justify-center">
+                                  <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                  </svg>
+                                </div>
+                              )}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+            </>
+          )}
           {/* Conditions Field */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -158,6 +332,7 @@ export const CreateCustomFilterPanel: React.FC<CreateCustomFilterPanelProps> = (
           conditions={conditions}
           onConditionsChange={setConditions}
           onClose={() => setShowConditionBuilder(false)}
+          filterType={activeTab === 'templates' ? filterType : activeTab}
         />
       )}
     </>
