@@ -144,8 +144,8 @@ export const CustomFiltersView: React.FC<CustomFiltersViewProps> = ({ onBack }) 
   const renderAssignedGroups = (groups: string[], maxWidth: string = 'max-w-48') => {
     if (groups.length === 0) return <span className="text-gray-400">None</span>;
     
-    // For this prototype, show first 2-3 groups then +count More
-    const maxVisible = 3;
+    // Show only the first few groups that fit, then +count MORE
+    const maxVisible = 2;
     const visibleGroups = groups.slice(0, maxVisible);
     const remainingCount = groups.length - visibleGroups.length;
     
@@ -158,7 +158,7 @@ export const CustomFiltersView: React.FC<CustomFiltersViewProps> = ({ onBack }) 
               className="text-gray-600"
               title={`Full list: ${groups.join(', ')}`}
             >
-               +{remainingCount} More
+               {' '}+{remainingCount}MORE
             </span>
           )}
         </span>
@@ -348,7 +348,7 @@ export const CustomFiltersView: React.FC<CustomFiltersViewProps> = ({ onBack }) 
                               </button>
                               
                               {activeDropdown === filter.id && (
-                                <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
+                                <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
                                   <div className="py-1">
                                     <button className="flex items-center space-x-2 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
                                       <Info className="w-4 h-4" />
@@ -447,7 +447,7 @@ export const CustomFiltersView: React.FC<CustomFiltersViewProps> = ({ onBack }) 
       {/* Backdrop for dropdown */}
       {activeDropdown && (
         <div
-          className="fixed inset-0 z-5"
+          className="fixed inset-0 z-40"
           onClick={() => setActiveDropdown(null)}
         />
       )}
