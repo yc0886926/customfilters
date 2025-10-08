@@ -154,11 +154,11 @@ export const CustomFiltersView: React.FC<CustomFiltersViewProps> = ({ onBack }) 
         <span className="text-gray-600">
           {visibleGroups.join(', ')}
           {remainingCount > 0 && (
-            <span 
+            <span
               className="text-gray-600"
               title={`Full list: ${groups.join(', ')}`}
             >
-               {' '}+{remainingCount}MORE
+              {' '}+{remainingCount} More
             </span>
           )}
         </span>
