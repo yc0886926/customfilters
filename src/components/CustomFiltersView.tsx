@@ -117,10 +117,16 @@ export const CustomFiltersView: React.FC<CustomFiltersViewProps> = ({ onBack }) 
   const endIndex = startIndex + itemsPerPage;
   const currentItems = currentFilters.slice(startIndex, endIndex);
   
-  // Reset to page 1 when changing tabs
+  // Reset to page 1 and close dropdown when changing tabs
   React.useEffect(() => {
     setCurrentPage(1);
+    setActiveDropdown(null);
   }, [activeTab]);
+
+  // Close dropdown when pagination changes
+  React.useEffect(() => {
+    setActiveDropdown(null);
+  }, [currentPage, itemsPerPage]);
 
   const tabs = [
     { id: 'people', label: 'People' },
@@ -128,7 +134,10 @@ export const CustomFiltersView: React.FC<CustomFiltersViewProps> = ({ onBack }) 
     { id: 'templates', label: 'Templates' }
   ];
 
-  const handleDropdownToggle = (filterId: string) => {
+  const handleDropdownToggle = (filterId: string, event?: React.MouseEvent) => {
+    if (event) {
+      event.stopPropagation();
+    }
     setActiveDropdown(activeDropdown === filterId ? null : filterId);
   };
 
@@ -136,7 +145,8 @@ export const CustomFiltersView: React.FC<CustomFiltersViewProps> = ({ onBack }) 
     setShowCreatePanel(true);
   };
 
-  const toggleFilterStatus = (filterId: string) => {
+  const toggleFilterStatus = (filterId: string, event: React.MouseEvent) => {
+    event.stopPropagation();
     // In a real app, this would update the filter status
     console.log('Toggle filter status for:', filterId);
   };
@@ -210,10 +220,11 @@ export const CustomFiltersView: React.FC<CustomFiltersViewProps> = ({ onBack }) 
   const renderStatusToggle = (filter: Filter) => {
     return (
       <button
-        onClick={() => toggleFilterStatus(filter.id)}
+        onClick={(e) => toggleFilterStatus(filter.id, e)}
         className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
           filter.enabled ? 'bg-blue-600' : 'bg-gray-200'
         }`}
+        aria-label={`Toggle status for ${filter.name}`}
       >
         <span
           className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
@@ -341,24 +352,49 @@ export const CustomFiltersView: React.FC<CustomFiltersViewProps> = ({ onBack }) 
                           <td className="py-4 px-4">
                             <div className="relative">
                               <button
-                                onClick={() => handleDropdownToggle(filter.id)}
+                                onClick={(e) => handleDropdownToggle(filter.id, e)}
                                 className="p-2 hover:bg-gray-200 rounded-lg transition-colors"
+                                aria-label="More actions"
                               >
                                 <MoreVertical className="w-4 h-4 text-gray-500" />
                               </button>
-                              
+
                               {activeDropdown === filter.id && (
-                                <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+                                <div
+                                  className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-[60]"
+                                  onClick={(e) => e.stopPropagation()}
+                                >
                                   <div className="py-1">
-                                    <button className="flex items-center space-x-2 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                                    <button
+                                      className="flex items-center space-x-2 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        console.log('View info for:', filter.id);
+                                        setActiveDropdown(null);
+                                      }}
+                                    >
                                       <Info className="w-4 h-4" />
                                       <span>View Info</span>
                                     </button>
-                                    <button className="flex items-center space-x-2 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                                    <button
+                                      className="flex items-center space-x-2 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        console.log('Edit filter:', filter.id);
+                                        setActiveDropdown(null);
+                                      }}
+                                    >
                                       <Edit className="w-4 h-4" />
                                       <span>Edit</span>
                                     </button>
-                                    <button className="flex items-center space-x-2 w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50">
+                                    <button
+                                      className="flex items-center space-x-2 w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        console.log('Delete filter:', filter.id);
+                                        setActiveDropdown(null);
+                                      }}
+                                    >
                                       <Trash2 className="w-4 h-4" />
                                       <span>Delete</span>
                                     </button>
