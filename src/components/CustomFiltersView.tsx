@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { ChevronLeft, Plus, MoreVertical, Info, CreditCard as Edit, Trash2, Users, FileText, ChevronDown } from 'lucide-react';
 import { CreateCustomFilterPanel } from './CreateCustomFilterPanel';
 
@@ -15,6 +15,140 @@ interface Filter {
   selectedDocuments?: string[];
   selectedWorkflows?: string[];
 }
+
+interface FilterRowProps {
+  filter: Filter;
+  activeTab: 'people' | 'applicants' | 'templates';
+  isDropdownOpen: boolean;
+  onDropdownToggle: (filterId: string, event: React.MouseEvent) => void;
+  onStatusToggle: (filterId: string, event: React.MouseEvent) => void;
+  renderAssignedGroups: (groups: string[], maxWidth?: string) => React.ReactNode;
+  renderScope: (documents?: string[], workflows?: string[]) => React.ReactNode;
+  onDropdownAction: (action: string, filterId: string) => void;
+}
+
+const FilterRow: React.FC<FilterRowProps> = React.memo(({
+  filter,
+  activeTab,
+  isDropdownOpen,
+  onDropdownToggle,
+  onStatusToggle,
+  renderAssignedGroups,
+  renderScope,
+  onDropdownAction
+}) => {
+  return (
+    <tr key={filter.id} className="hover:bg-gray-50 transition-colors">
+      <td className="py-4 px-4">
+        <div className="font-medium text-gray-900" title={filter.name}>
+          {filter.name}
+        </div>
+      </td>
+      {activeTab === 'templates' && (
+        <>
+          <td className="py-4 px-4">
+            <div className="flex items-center space-x-2">
+              {filter.filterType === 'people' ? (
+                <Users className="w-4 h-4 text-blue-500" />
+              ) : (
+                <FileText className="w-4 h-4 text-green-500" />
+              )}
+              <span className="text-gray-600 capitalize">
+                {filter.filterType || 'people'}
+              </span>
+            </div>
+          </td>
+          <td className="py-4 px-4">
+            {renderScope(filter.selectedDocuments, filter.selectedWorkflows)}
+          </td>
+        </>
+      )}
+      <td className="py-4 px-4">
+        {renderAssignedGroups(filter.targetGroups, 'max-w-64')}
+      </td>
+      <td className="py-4 px-4">
+        <button
+          onClick={(e) => onStatusToggle(filter.id, e)}
+          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+            filter.enabled ? 'bg-blue-600' : 'bg-gray-200'
+          }`}
+          aria-label={`Toggle status for ${filter.name}`}
+        >
+          <span
+            className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+              filter.enabled ? 'translate-x-6' : 'translate-x-1'
+            }`}
+          />
+        </button>
+      </td>
+      <td className="py-4 px-4">
+        <div className="relative">
+          <button
+            onClick={(e) => onDropdownToggle(filter.id, e)}
+            className="p-2 hover:bg-gray-200 rounded-lg transition-colors"
+            aria-label="More actions"
+          >
+            <MoreVertical className="w-4 h-4 text-gray-500" />
+          </button>
+
+          {isDropdownOpen && (
+            <div
+              className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-[60]"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="py-1">
+                <button
+                  className="flex items-center space-x-2 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDropdownAction('view', filter.id);
+                  }}
+                >
+                  <Info className="w-4 h-4" />
+                  <span>View Info</span>
+                </button>
+                <button
+                  className="flex items-center space-x-2 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDropdownAction('edit', filter.id);
+                  }}
+                >
+                  <Edit className="w-4 h-4" />
+                  <span>Edit</span>
+                </button>
+                <button
+                  className="flex items-center space-x-2 w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDropdownAction('delete', filter.id);
+                  }}
+                >
+                  <Trash2 className="w-4 h-4" />
+                  <span>Delete</span>
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </td>
+    </tr>
+  );
+}, (prevProps, nextProps) => {
+  // Custom comparison function - only re-render if these props change
+  return (
+    prevProps.filter.id === nextProps.filter.id &&
+    prevProps.filter.name === nextProps.filter.name &&
+    prevProps.filter.enabled === nextProps.filter.enabled &&
+    prevProps.filter.targetGroups === nextProps.filter.targetGroups &&
+    prevProps.filter.selectedDocuments === nextProps.filter.selectedDocuments &&
+    prevProps.filter.selectedWorkflows === nextProps.filter.selectedWorkflows &&
+    prevProps.isDropdownOpen === nextProps.isDropdownOpen &&
+    prevProps.activeTab === nextProps.activeTab
+  );
+});
+
+FilterRow.displayName = 'FilterRow';
 
 export const CustomFiltersView: React.FC<CustomFiltersViewProps> = ({ onBack }) => {
   const [activeTab, setActiveTab] = useState<'people' | 'applicants' | 'templates'>('people');
@@ -145,20 +279,25 @@ export const CustomFiltersView: React.FC<CustomFiltersViewProps> = ({ onBack }) 
     setShowCreatePanel(true);
   };
 
-  const toggleFilterStatus = (filterId: string, event: React.MouseEvent) => {
+  const toggleFilterStatus = useCallback((filterId: string, event: React.MouseEvent) => {
     event.stopPropagation();
     // In a real app, this would update the filter status
     console.log('Toggle filter status for:', filterId);
-  };
+  }, []);
 
-  const renderAssignedGroups = (groups: string[], maxWidth: string = 'max-w-48') => {
+  const handleDropdownAction = useCallback((action: string, filterId: string) => {
+    console.log(`${action} action for filter:`, filterId);
+    setActiveDropdown(null);
+  }, []);
+
+  const renderAssignedGroups = useCallback((groups: string[], maxWidth: string = 'max-w-48') => {
     if (groups.length === 0) return <span className="text-gray-400">None</span>;
-    
+
     // Show only the first few groups that fit, then +count MORE
     const maxVisible = 2;
     const visibleGroups = groups.slice(0, maxVisible);
     const remainingCount = groups.length - visibleGroups.length;
-    
+
     return (
       <div className={`${maxWidth}`}>
         <span className="text-gray-600">
@@ -174,16 +313,16 @@ export const CustomFiltersView: React.FC<CustomFiltersViewProps> = ({ onBack }) 
         </span>
       </div>
     );
-  };
+  }, []);
 
-  const renderScope = (documents: string[] = [], workflows: string[] = []) => {
+  const renderScope = useCallback((documents: string[] = [], workflows: string[] = []) => {
     const docCount = documents.length;
     const workflowCount = workflows.length;
-    
+
     if (docCount === 0 && workflowCount === 0) {
       return <span className="text-gray-400">None</span>;
     }
-    
+
     let scopeText = '';
     if (docCount > 0 && workflowCount > 0) {
       scopeText = `${docCount} Document${docCount > 1 ? 's' : ''}, ${workflowCount} Workflow${workflowCount > 1 ? 's' : ''}`;
@@ -192,21 +331,21 @@ export const CustomFiltersView: React.FC<CustomFiltersViewProps> = ({ onBack }) 
     } else if (workflowCount > 0) {
       scopeText = `${workflowCount} Workflow${workflowCount > 1 ? 's' : ''}`;
     }
-    
+
     const fullDetails = [
       ...(docCount > 0 ? [`Documents: ${documents.join(', ')}`] : []),
       ...(workflowCount > 0 ? [`Workflows: ${workflows.join(', ')}`] : [])
     ].join('\n');
-    
+
     return (
-      <span 
+      <span
         className="text-gray-600"
         title={fullDetails}
       >
         {scopeText}
       </span>
     );
-  };
+  }, []);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -217,23 +356,6 @@ export const CustomFiltersView: React.FC<CustomFiltersViewProps> = ({ onBack }) 
     setCurrentPage(1); // Reset to first page
   };
 
-  const renderStatusToggle = (filter: Filter) => {
-    return (
-      <button
-        onClick={(e) => toggleFilterStatus(filter.id, e)}
-        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-          filter.enabled ? 'bg-blue-600' : 'bg-gray-200'
-        }`}
-        aria-label={`Toggle status for ${filter.name}`}
-      >
-        <span
-          className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-            filter.enabled ? 'translate-x-6' : 'translate-x-1'
-          }`}
-        />
-      </button>
-    );
-  };
   return (
     <div className="flex h-full">
       {/* Main Content */}
@@ -318,92 +440,17 @@ export const CustomFiltersView: React.FC<CustomFiltersViewProps> = ({ onBack }) 
                     </thead>
                     <tbody className="divide-y divide-gray-100">
                       {currentItems.map((filter) => (
-                        <tr key={filter.id} className="hover:bg-gray-50 transition-colors">
-                          <td className="py-4 px-4">
-                            <div className="font-medium text-gray-900" title={filter.name}>
-                              {filter.name}
-                            </div>
-                          </td>
-                          {activeTab === 'templates' && (
-                            <>
-                              <td className="py-4 px-4">
-                                <div className="flex items-center space-x-2">
-                                  {filter.filterType === 'people' ? (
-                                    <Users className="w-4 h-4 text-blue-500" />
-                                  ) : (
-                                    <FileText className="w-4 h-4 text-green-500" />
-                                  )}
-                                  <span className="text-gray-600 capitalize">
-                                    {filter.filterType || 'people'}
-                                  </span>
-                                </div>
-                              </td>
-                              <td className="py-4 px-4">
-                                {renderScope(filter.selectedDocuments, filter.selectedWorkflows)}
-                              </td>
-                            </>
-                          )}
-                          <td className="py-4 px-4">
-                            {renderAssignedGroups(filter.targetGroups, 'max-w-64')}
-                          </td>
-                          <td className="py-4 px-4">
-                            {renderStatusToggle(filter)}
-                          </td>
-                          <td className="py-4 px-4">
-                            <div className="relative">
-                              <button
-                                onClick={(e) => handleDropdownToggle(filter.id, e)}
-                                className="p-2 hover:bg-gray-200 rounded-lg transition-colors"
-                                aria-label="More actions"
-                              >
-                                <MoreVertical className="w-4 h-4 text-gray-500" />
-                              </button>
-
-                              {activeDropdown === filter.id && (
-                                <div
-                                  className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-[60]"
-                                  onClick={(e) => e.stopPropagation()}
-                                >
-                                  <div className="py-1">
-                                    <button
-                                      className="flex items-center space-x-2 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        console.log('View info for:', filter.id);
-                                        setActiveDropdown(null);
-                                      }}
-                                    >
-                                      <Info className="w-4 h-4" />
-                                      <span>View Info</span>
-                                    </button>
-                                    <button
-                                      className="flex items-center space-x-2 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        console.log('Edit filter:', filter.id);
-                                        setActiveDropdown(null);
-                                      }}
-                                    >
-                                      <Edit className="w-4 h-4" />
-                                      <span>Edit</span>
-                                    </button>
-                                    <button
-                                      className="flex items-center space-x-2 w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        console.log('Delete filter:', filter.id);
-                                        setActiveDropdown(null);
-                                      }}
-                                    >
-                                      <Trash2 className="w-4 h-4" />
-                                      <span>Delete</span>
-                                    </button>
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-                          </td>
-                        </tr>
+                        <FilterRow
+                          key={filter.id}
+                          filter={filter}
+                          activeTab={activeTab}
+                          isDropdownOpen={activeDropdown === filter.id}
+                          onDropdownToggle={handleDropdownToggle}
+                          onStatusToggle={toggleFilterStatus}
+                          renderAssignedGroups={renderAssignedGroups}
+                          renderScope={renderScope}
+                          onDropdownAction={handleDropdownAction}
+                        />
                       ))}
                     </tbody>
                   </table>
